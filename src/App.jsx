@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import { useRef, useState } from "react";
+import emailjs from "@emailjs/browser";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
-import { FaPalette } from "react-icons/fa";
-import { FaMagic } from "react-icons/fa";
+
+// import { FaPalette } from "react-icons/fa";
+// import { FaMagic } from "react-icons/fa";
 import milletImg from "./assets/milletconnect.png"; // adjust if file is in another folder
 import letterGenImg from "./assets/image.png"; 
 import secureshareImg from "./assets/secureshare.png"; 
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+
 
 import SplitText from "./components/SplitText";
 import { motion } from "framer-motion";
@@ -51,48 +55,88 @@ const allProjects = [
       "Used MongoDB for backend data storage and ‘localStorage’ for frontend session management.",
       "Designed a clean and responsive UI using React and custom CSS."
     ]
-  },  {
-    title: "Portfolio Website",
-    tech: ["React.js", "Tailwind CSS", "Framer Motion"],
-    date: "July 2025",
-    img: "https://via.placeholder.com/300x200?text=Portfolio",
-    github: "https://github.com/yourusername/portfolio",
-    points: [
-      "Designed and developed a personal portfolio website with animations using Framer Motion.",
-      "Showcases education, projects, contact form, and technical skills with themed UI.",
-      "Implemented responsive layouts and custom interactive project cards."
-    ]
-  },
-  {
-    title: "Community Idea Box",
-    tech: ["Next.js", "Supabase", "Tailwind CSS"],
-    date: "June 2025",
-    img: "https://via.placeholder.com/300x200?text=Idea+Box",
-    github: "https://github.com/yourusername/community-idea-box",
-    points: [
-      "Built a public idea submission platform with authentication and admin approval system.",
-      "Users can post, upvote, and browse ideas by category with role-based access.",
-      "Used Supabase for authentication and real-time database management."
-    ]
-  },
-  {
-    title: "Price Comparison App",
-    tech: ["React", "Rapid API", "Tailwind CSS"],
-    date: "July 2025",
-    img: "https://via.placeholder.com/300x200?text=Price+Compare",
-    github: "https://github.com/yourusername/price-compare",
-    points: [
-      "Developed a tool to compare product prices across multiple e-commerce platforms.",
-      "Implemented barcode/image-based product search using third-party APIs.",
-      "Designed clean UI and integrated dynamic result rendering with filtering options."
-    ]
   }
+  //   ,{
+  //   title: "Portfolio Website",
+  //   tech: ["React.js", "Tailwind CSS", "Framer Motion"],
+  //   date: "July 2025",
+  //   img: "https://via.placeholder.com/300x200?text=Portfolio",
+  //   github: "https://github.com/yourusername/portfolio",
+  //   points: [
+  //     "Designed and developed a personal portfolio website with animations using Framer Motion.",
+  //     "Showcases education, projects, contact form, and technical skills with themed UI.",
+  //     "Implemented responsive layouts and custom interactive project cards."
+  //   ]
+  // },
+  // {
+  //   title: "Community Idea Box",
+  //   tech: ["Next.js", "Supabase", "Tailwind CSS"],
+  //   date: "June 2025",
+  //   img: "https://via.placeholder.com/300x200?text=Idea+Box",
+  //   github: "https://github.com/yourusername/community-idea-box",
+  //   points: [
+  //     "Built a public idea submission platform with authentication and admin approval system.",
+  //     "Users can post, upvote, and browse ideas by category with role-based access.",
+  //     "Used Supabase for authentication and real-time database management."
+  //   ]
+  // },
+  // {
+  //   title: "Price Comparison App",
+  //   tech: ["React", "Rapid API", "Tailwind CSS"],
+  //   date: "July 2025",
+  //   img: "https://via.placeholder.com/300x200?text=Price+Compare",
+  //   github: "https://github.com/yourusername/price-compare",
+  //   points: [
+  //     "Developed a tool to compare product prices across multiple e-commerce platforms.",
+  //     "Implemented barcode/image-based product search using third-party APIs.",
+  //     "Designed clean UI and integrated dynamic result rendering with filtering options."
+  //   ]
+  // }
 ];
 
 
 export default function App() {
   const [visibleCount, setVisibleCount] = useState(3);
  const showAll = visibleCount >= allProjects.length;
+
+
+ const formRef = useRef();
+const [isSent, setIsSent] = useState(false);
+
+const sendEmail = (e) => {
+  e.preventDefault();
+
+  const formData = {
+    name: formRef.current.name.value,
+    email: formRef.current.email.value,
+    message: formRef.current.message.value,
+  };
+
+  emailjs
+    .send(
+      import.meta.env.VITE_EMAILJS_SERVICE_ID,
+      import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+      formData,
+      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+    )
+    .then(
+      (result) => {
+        console.log("✅ Email sent:", result.text);
+        setIsSent(true);
+        formRef.current.reset();
+        setTimeout(() => setIsSent(false), 5000);
+      },
+      (error) => {
+        console.error("❌ Email error:", error.text);
+        alert("Failed to send message.");
+      }
+    );
+};
+
+
+
+
+
   return (
     <div className="relative min-h-screen bg-black text-white font-sans overflow-hidden">
       {/* 🔮 Smoky Animated Background Blobs */}
@@ -113,14 +157,12 @@ export default function App() {
       {/* 🔗 Navbar */}
      <header className="fixed top-0 left-0 w-full bg-black/70 backdrop-blur-md z-50 shadow-md flex justify-between items-center px-10 py-3">
   <div className="text-2xl font-semibold tracking-wide">🐘</div>
-  <div className="flex gap-6 text-2xl">
+  {/* <div className="flex gap-6 text-2xl">
     <FaMagic className="hover:text-orange-soft" />
     <FaPalette className="hover:text-orange-soft" />
-  </div>
+  </div> */}
 </header>
 
-
-      
       {/* 👋 Hero Section */}
       <main className="pt-32 flex flex-col-reverse md:flex-row items-center justify-center px-6 py-28 max-w-6xl mx-auto gap-16 min-h-[110vh] relative z-10">
         <div className="md:w-1/2 text-center md:text-left">
@@ -276,16 +318,22 @@ export default function App() {
           </motion.div>
         ))}
 
-        <div className="text-center mt-10">
-          <button
-            onClick={() =>
-              setVisibleCount(showAll ? 3 : allProjects.length)
-            }
-            className="px-6 py-2 rounded-md border-2 border-purple-electric text-white hover:bg-purple-electric/10 hover:shadow-[0_0_15px_#610094] transition"
-          >
-            {showAll ? "Show Less" : "View More Projects"}
-          </button>
-        </div>
+       {/* <div className="text-center mt-10">
+  <div
+    onClick={() => setVisibleCount(showAll ? 3 : allProjects.length)}
+    className="inline-block cursor-pointer text-white font-bold text-2x transition-transform hover:scale-110 hover:text-purple-electric"
+  >
+    {showAll ? "Show Less" : "View More Projects"}
+
+    <div className="flex justify-center mt-2">
+      {showAll ? (
+        <FiChevronUp className="text-5xl text-purple-electric drop-shadow-[0_0_6px_#610094] animate-bounce" />
+      ) : (
+        <FiChevronDown className="text-5xl text-purple-electric drop-shadow-[0_0_6px_#610094] animate-bounce" />
+      )}
+    </div>
+  </div>
+</div> */}
       </div>
     </section>
   
@@ -330,44 +378,55 @@ export default function App() {
         </div>
 
         {/* 📬 Contact Form */}
-        <form className="flex flex-col items-center">
-          <div className="w-full md:w-4/5">
-            <div className="flex flex-col md:flex-row gap-6 mb-6">
-              <div className="w-full">
-                <label className="block text-sm mb-1 text-center md:text-left">Email</label>
-                <input
-                  type="email"
-                  placeholder="developer@domain.com"
-                  className="w-full bg-transparent border border-purple-electric rounded-md px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-electric"
-                />
-              </div>
-              <div className="w-full">
-                <label className="block text-sm mb-1 text-center md:text-left">Name</label>
-                <input
-                  type="text"
-                  placeholder="Developer X"
-                  className="w-full bg-transparent border border-purple-electric rounded-md px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-electric"
-                />
-              </div>
-            </div>
-            <div className="mb-6">
-              <label className="block text-sm mb-1 text-center md:text-left">Message</label>
-              <div className="flex flex-col md:flex-row gap-6">
-                <textarea
-                  rows="4"
-                  placeholder="What's up?"
-                  className="w-full bg-transparent border border-purple-electric rounded-md px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-electric"
-                ></textarea>
-                <button
-                  type="submit"
-                  className="w-full md:w-auto px-6 py-2 rounded-md border-2 border-purple-electric text-white transition hover:bg-purple-electric/10"
-                >
-                  Send
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
+       <form ref={formRef} onSubmit={sendEmail} className="flex flex-col items-center">
+  <div className="w-full md:w-4/5">
+    <div className="flex flex-col md:flex-row gap-6 mb-6">
+      <div className="w-full">
+        <label className="block text-sm mb-1 text-center md:text-left">Email</label>
+        <input
+          type="email"
+          name="email"
+          placeholder="developer@domain.com"
+          required
+          className="w-full bg-transparent border border-purple-electric rounded-md px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-electric"
+        />
+      </div>
+      <div className="w-full">
+        <label className="block text-sm mb-1 text-center md:text-left">Name</label>
+        <input
+          type="text"
+          name="name"
+          placeholder="Developer X"
+          required
+          className="w-full bg-transparent border border-purple-electric rounded-md px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-electric"
+        />
+      </div>
+    </div>
+    <div className="mb-6">
+      <label className="block text-sm mb-1 text-center md:text-left">Message</label>
+      <div className="flex flex-col md:flex-row gap-6">
+        <textarea
+          name="message"
+          rows="4"
+          placeholder="What's up?"
+          required
+          className="w-full bg-transparent border border-purple-electric rounded-md px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-electric"
+        ></textarea>
+        <button
+          type="submit"
+          className="w-full md:w-auto px-6 py-2 rounded-md border-2 border-purple-electric text-white transition hover:bg-purple-electric/10"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+    {isSent && (
+      <p className="text-green-400 text-center font-medium mt-2">✅ Message sent successfully!</p>
+    )}
+  </div>
+</form>
+
+
       </motion.div>
     </section>
     </div>
