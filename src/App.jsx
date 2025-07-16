@@ -96,43 +96,41 @@ const getAllProjects = () => ([
 ]);
 
 
+
 export default function App() {
   const [visibleCount, setVisibleCount] = useState(3);
- const showAll = visibleCount >= getAllProjects().length;
+  const allProjects = getAllProjects();
+  const showAll = visibleCount >= allProjects.length;
+  const formRef = useRef(null);
+  const [isSent, setIsSent] = useState(false);
 
+  const sendEmail = async (e) => {
+    e.preventDefault();
+    const data = {
+      name: formRef.current.name.value,
+      email: formRef.current.email.value,
+      message: formRef.current.message.value
+    };
 
- const formRef = useRef();
-const [isSent, setIsSent] = useState(false);
+    try {
+      const res = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
 
-const sendEmail = (e) => {
-  e.preventDefault();
-
-  const formData = {
-    name: formRef.current.name.value,
-    email: formRef.current.email.value,
-    message: formRef.current.message.value,
-  };
-
-  emailjs
-    .send(
-      import.meta.env.VITE_EMAILJS_SERVICE_ID,
-      import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-      formData,
-      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-    )
-    .then(
-      (result) => {
-        console.log("✅ Email sent:", result.text);
+      if (res.ok) {
         setIsSent(true);
         formRef.current.reset();
         setTimeout(() => setIsSent(false), 5000);
-      },
-      (error) => {
-        console.error("❌ Email error:", error.text);
-        alert("Failed to send message.");
+      } else {
+        const error = await res.json();
+        alert("Failed to send email: " + error.message);
       }
-    );
-};
+    } catch (err) {
+      alert("Something went wrong!");
+    }
+  };
 
 
 
@@ -248,7 +246,7 @@ const sendEmail = (e) => {
   { name: "CSS", img: "https://img.icons8.com/color/48/css3.png" },
   { name: "React", img: "https://img.icons8.com/officel/48/react.png" },
   { name: "Node.js", img: "https://img.icons8.com/color/48/nodejs.png" },
-  { name: "Express.js", img: "https://img.icons8.com/ios-filled/50/ffffff/express-js.png" },
+  // { name: "Express.js", img: "https://img.icons8.com/ios-filled/50/ffffff/express-js.png" },
   { name: "Flask", img: "https://img.icons8.com/ios-filled/50/ffffff/flask.png" },
   { name: "Tailwind", img: "https://img.icons8.com/color/48/tailwind_css.png" },
   { name: "Bootstrap", img: "https://img.icons8.com/color/48/bootstrap.png" },
@@ -268,29 +266,28 @@ const sendEmail = (e) => {
 
         </div>
       </section>
- <section className="px-6 py-28 max-w-6xl mx-auto relative z-10 overflow-hidden">
+  <section className="px-6 py-28 max-w-6xl mx-auto relative z-10 overflow-hidden">
         <div className="absolute top-[12%] left-[8%] w-[250px] h-[250px] bg-purple-electric opacity-25 blur-[120px] rounded-full animate-pulse pointer-events-none z-0" />
         <div className="absolute top-[30%] right-[15%] w-[300px] h-[300px] bg-purple-royal opacity-20 blur-[110px] rounded-full animate-ping pointer-events-none z-0" />
         <div className="absolute bottom-[20%] left-[30%] w-[220px] h-[220px] bg-purple-electric opacity-30 blur-[100px] rounded-full animate-float pointer-events-none z-0" />
 
         <h2 className="text-4xl font-bold mb-16 text-center relative z-10">Projects</h2>
         <div className="space-y-24 relative z-10">
-          {getAllProjects().slice(0, visibleCount).map((proj, i) => (
+          {allProjects.slice(0, visibleCount).map((proj, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.2 }}
-              className={`group flex flex-col ${i % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-12 md:gap-16 mb-12 bg-white/5 dark:bg-black p-10 rounded-lg transition duration-500 min-h-[380px] hover:shadow-[25px_5px_35px_rgba(97,0,148,0.4),-25px_5px_35px_rgba(97,0,148,0.4),0px_25px_35px_rgba(97,0,148,0.4)] hover:bg-gradient-to-br hover:from-transparent hover:via-transparent hover:to-purple-electric/10`}
+              className={`group flex flex-col ${i % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-12 md:gap-16 mb-12 bg-white/5 p-10 rounded-lg transition duration-500 hover:bg-purple-electric/10 hover:shadow-[0_0_20px_#610094]`}
             >
               <img
                 src={proj.img}
                 alt={proj.title}
                 className="w-full md:w-[380px] h-[230px] object-cover rounded-lg shadow-md"
               />
-
-              <div className="flex-1 text-white w-full">
+              <div className="flex-1">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-2xl font-semibold">{proj.title}</h3>
                   <div className="flex items-center gap-2">
@@ -300,16 +297,16 @@ const sendEmail = (e) => {
                     </a>
                   </div>
                 </div>
-                <ul className="list-disc list-inside text-gray-300 space-y-1 text-[15px] mb-6">
+                <ul className="list-disc list-inside text-gray-300 space-y-1 text-sm mb-6">
                   {proj.points.map((point, idx) => (
                     <li key={idx}>{point}</li>
                   ))}
                 </ul>
-                <div className="flex flex-wrap gap-3 mb-6">
+                <div className="flex flex-wrap gap-3">
                   {proj.tech.map((tech, idx) => (
                     <span
                       key={idx}
-                      className="px-5 py-2 rounded-md border-2 border-purple-electric text-white font-medium text-sm hover:bg-purple-electric hover:border-purple-electric hover:shadow-none transition duration-300"
+                      className="px-4 py-1 rounded-md border-2 border-purple-electric text-sm"
                     >
                       {tech}
                     </span>
@@ -319,23 +316,25 @@ const sendEmail = (e) => {
             </motion.div>
           ))}
 
+          {/* Show More */}
           <div className="text-center mt-10">
-            <div
-              onClick={() => setVisibleCount(showAll ? 3 : getAllProjects().length)}
-              className="inline-block cursor-pointer text-white font-bold text-2x transition-transform hover:scale-110 hover:text-purple-electric"
+            <button
+              onClick={() => setVisibleCount(showAll ? 3 : allProjects.length)}
+              className="text-white font-semibold hover:text-purple-electric transition text-xl"
             >
               {showAll ? "Show Less" : "View More Projects"}
               <div className="flex justify-center mt-2">
                 {showAll ? (
-                  <FiChevronUp className="text-5xl text-purple-electric drop-shadow-[0_0_6px_#610094] animate-bounce" />
+                  <FiChevronUp className="text-4xl text-purple-electric animate-bounce" />
                 ) : (
-                  <FiChevronDown className="text-5xl text-purple-electric drop-shadow-[0_0_6px_#610094] animate-bounce" />
+                  <FiChevronDown className="text-4xl text-purple-electric animate-bounce" />
                 )}
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </section>
+
   
  <section className="px-6 py-28 max-w-5xl mx-auto relative z-10 overflow-hidden text-white">
       <motion.div
