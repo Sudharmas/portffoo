@@ -100,31 +100,37 @@ export default function App() {
  const showAll = visibleCount >= allProjects.length;
 
 
- const sendEmail = async (e) => {
+ const formRef = useRef();
+const [isSent, setIsSent] = useState(false);
+
+const sendEmail = (e) => {
   e.preventDefault();
-  const data = {
+
+  const formData = {
     name: formRef.current.name.value,
     email: formRef.current.email.value,
-    message: formRef.current.message.value
+    message: formRef.current.message.value,
   };
 
-  try {
-    const res = await fetch("/api/send-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-
-    if (res.ok) {
-      setIsSent(true);
-      formRef.current.reset();
-    } else {
-      const error = await res.json();
-      alert("Failed to send email: " + error.message);
-    }
-  } catch (err) {
-    alert("Something went wrong!");
-  }
+  emailjs
+    .send(
+      import.meta.env.VITE_EMAILJS_SERVICE_ID,
+      import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+      formData,
+      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+    )
+    .then(
+      (result) => {
+        console.log("✅ Email sent:", result.text);
+        setIsSent(true);
+        formRef.current.reset();
+        setTimeout(() => setIsSent(false), 5000);
+      },
+      (error) => {
+        console.error("❌ Email error:", error.text);
+        alert("Failed to send message.");
+      }
+    );
 };
 
 
