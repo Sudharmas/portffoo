@@ -98,7 +98,7 @@ const getAllProjects = () => ([
 
 export default function App() {
   const [visibleCount, setVisibleCount] = useState(3);
- const showAll = visibleCount >= getAllProjects.length;
+ const showAll = visibleCount >= getAllProjects().length;
 
 
  const formRef = useRef();
