@@ -124,8 +124,14 @@ export default function App() {
         formRef.current.reset();
         setTimeout(() => setIsSent(false), 5000);
       } else {
-        const error = await res.json();
-        alert("Failed to send email: " + error.message);
+        try {
+          const error = await res.json();
+          alert("Failed to send email: " + error.message);
+        } catch (jsonError) {
+          // If the response is not JSON, display the raw text
+          const errorText = await res.text();
+          alert("Failed to send email: " + errorText);
+        }
       }
     } catch (err) {
       alert("Something went wrong!");
